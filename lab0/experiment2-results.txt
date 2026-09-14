@@ -1,0 +1,21 @@
+Angle (deg)    Separation (cm)    n        Uncertainty
+    10.0            0.5       1.3185    0.2672
+    21.5            1.0       1.4272    0.1370
+    30.5            1.5       1.3708    0.1590
+    44.5            2.0       1.4936    0.2333
+    56.0            2.5       1.4983    0.1666
+    61.0            2.7       1.5004    0.1469
+    76.5            3.0       1.5599    0.1272
+    65.5            2.9       1.4908    0.1292
+    48.0            2.2       1.4725    0.1501
+
+Mean refractive index: 1.4591
+Sample standard deviation: 0.0745
+Standard error: 0.0248
+Final result: 1.4591 +/- 0.0248
+Accepted value: 1.53
+Difference in standard errors: 2.86
+Within two standard errors: False
+Within three standard errors: True
+
+The standard error does not include shared systematic errors.
