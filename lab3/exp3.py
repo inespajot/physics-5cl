@@ -2,30 +2,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-# Diffraction orders
 m = np.array([1, 2, 3])
 
-# Full distances from -m to +m, in cm
 D = {
     "2 pt": np.array([0.81, 1.51, 2.24]),
     "4 pt": np.array([0.46, 0.89, 1.35]),
     "8 pt": np.array([0.26, 0.47, 0.84])
 }
 
-# Known values
 sigma_D = 0.014       # cm
 sigma_y = sigma_D / 2 # cm
 wavelength = 635e-9   # m
 L = (95.0 - 5.9) / 100  # m
 
-# Nominal slit widths in mm
+# mm
 nominal_widths = {
     "2 pt": 2 * 0.04393,
     "4 pt": 4 * 0.04393,
     "8 pt": 8 * 0.04393
 }
 
-# Linear model through the origin
 def model(m, slope):
     return slope * m
 
@@ -38,12 +34,10 @@ fig, axes = plt.subplots(
 
 for column, (slit, full_distance) in enumerate(D.items()):
 
-    # Convert full distance to one-sided minimum position
     y = full_distance / 2
 
     uncertainties = np.full(len(y), sigma_y)
 
-    # Fit y_m = slope * m
     parameters, covariance = curve_fit(
         model,
         m,
@@ -58,20 +52,16 @@ for column, (slit, full_distance) in enumerate(D.items()):
     fitted_y = model(m, slope)
     residuals = y - fitted_y
 
-    # Chi-squared
     chi_squared = np.sum((residuals / uncertainties) ** 2)
     degrees_of_freedom = len(y) - 1
     reduced_chi_squared = chi_squared / degrees_of_freedom
 
-    # Convert slope from cm to m
     slope_m = slope / 100
     slope_uncertainty_m = slope_uncertainty / 100
 
-    # Calculate slit width
     slit_width_m = wavelength * L / slope_m
     slit_width_mm = slit_width_m * 1000
 
-    # Propagate slope uncertainty only
     width_uncertainty_mm = (
         slit_width_mm * slope_uncertainty_m / slope_m
     )

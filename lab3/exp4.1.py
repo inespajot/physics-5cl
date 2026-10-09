@@ -6,7 +6,7 @@ from scipy.optimize import curve_fit
 # Diffraction orders
 m = np.array([1, 2, 3, 4, 5, 6])
 
-# Full distances from -m to +m, in cm
+# Full distances
 distances = {
     "26-gauge": np.array([0.27, 0.63, 0.73, 0.97, 1.19, 1.45]),
     "39-gauge": np.array([0.87, 1.72, 2.69, 3.47, 4.39, 5.28]),
@@ -18,7 +18,7 @@ sigma_y = sigma_D / 2  # cm
 
 # Green laser wavelength
 wavelength = 532e-9  # m
-sigma_wavelength = 0  # m; change this if a wavelength uncertainty is known
+sigma_wavelength = 0  # m
 
 # Wire and screen positions
 wire_position_cm = 6.2
@@ -60,7 +60,6 @@ print(f"Wavelength = {wavelength * 1e9:.0f} nm")
 print()
 
 for column, (wire, full_distance) in enumerate(distances.items()):
-    # Convert the full distance to a one-sided minimum position.
     y_all = full_distance / 2
 
     # Exclude m = 2 for the 26-gauge wire from the fit.
@@ -73,7 +72,6 @@ for column, (wire, full_distance) in enumerate(distances.items()):
     y_used = y_all[fit_mask]
     uncertainties_used = np.full(len(y_used), sigma_y)
 
-    # Fit y_m = slope * m through the origin.
     parameters, covariance = curve_fit(
         model,
         m_used,
@@ -92,19 +90,15 @@ for column, (wire, full_distance) in enumerate(distances.items()):
     degrees_of_freedom = len(y_used) - 1
     reduced_chi_squared = chi_squared / degrees_of_freedom
 
-    # Increase the slope uncertainty when the observed scatter is too large.
     uncertainty_scale = np.sqrt(max(1, reduced_chi_squared))
     slope_uncertainty = original_slope_uncertainty * uncertainty_scale
 
-    # Convert the slope from cm to m.
     slope_m = slope / 100
     slope_uncertainty_m = slope_uncertainty / 100
 
-    # Calculate the wire diameter.
     diameter_m = wavelength * L / slope_m
     diameter_mm = diameter_m * 1000
 
-    # Propagate wavelength, distance, and slope uncertainties.
     relative_uncertainty = np.sqrt(
         (sigma_wavelength / wavelength) ** 2
         + (sigma_L / L) ** 2
@@ -112,7 +106,7 @@ for column, (wire, full_distance) in enumerate(distances.items()):
     )
     diameter_uncertainty_mm = diameter_mm * relative_uncertainty
 
-    # Agreement test.
+    # Agreement test
     accepted = accepted_diameters[wire]
     accepted_uncertainty = accepted_uncertainties[wire]
     difference = abs(diameter_mm - accepted)
@@ -138,7 +132,7 @@ for column, (wire, full_distance) in enumerate(distances.items()):
     print(f"Agreement = {'Yes' if agrees else 'No'}")
     print()
 
-    # Main fit graph.
+    # Main fit graph
     main_ax = axes[0, column]
     main_ax.errorbar(
         m_used,
@@ -149,7 +143,6 @@ for column, (wire, full_distance) in enumerate(distances.items()):
         label="Included data",
     )
 
-    # Keep excluded measurements visible on the graph.
     if np.any(~fit_mask):
         main_ax.plot(
             m[~fit_mask],
@@ -166,7 +159,7 @@ for column, (wire, full_distance) in enumerate(distances.items()):
     main_ax.grid(alpha=0.3)
     main_ax.legend()
 
-    # Residual graph for included measurements only.
+    # Residual graph
     residual_ax = axes[1, column]
     residual_ax.errorbar(
         m_used,
